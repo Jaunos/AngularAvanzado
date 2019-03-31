@@ -1,24 +1,23 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { AppRoutingModule } from './app-routing.module';
+
 import { AppComponent } from './app.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HeaderComponent } from './header/header.component';
-import { FooterComponent } from './footer/footer.component';
+import { FooterComponent} from './footer/footer.component';
 import { DirectivaComponent } from './directiva/directiva.component';
 import { ClientesComponent } from './clientes/clientes.component';
-import { HttpModule } from '@angular/http';
-//componente de Angular para la comunicación con el servidor remoto a traves de peticiones http
+import { RouterModule, Routes} from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { FormComponent } from './clientes/form.component';
+import { FormsModule } from '@angular/forms'
 import { ClienteService } from './services/cliente.service';
 
-
-
 const routes: Routes = [
-  { path: '', redirectTo: '/clientes', pathMatch: 'full' },
-  { path: 'directivas', component: DirectivaComponent },
-  { path: 'clientes', component: ClientesComponent},
+  {path: '', redirectTo: '/clientes', pathMatch: 'full'},
+  {path: 'directivas', component: DirectivaComponent},
+  {path: 'clientes', component: ClientesComponent},
+  {path: 'clientes/form', component: FormComponent},
+  {path: 'clientes/form/:id', component: FormComponent}
 ];
 
 @NgModule({
@@ -27,22 +26,16 @@ const routes: Routes = [
     HeaderComponent,
     FooterComponent,
     DirectivaComponent,
-    ClientesComponent
+    ClientesComponent,
+    FormComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
-    RouterModule.forRoot(routes),
+    HttpClientModule,
     FormsModule,
-    ReactiveFormsModule,
-    HttpModule,
-    HttpClientModule
+    RouterModule.forRoot(routes)
   ],
-  providers: [
-    ClienteService
-  ],
-  bootstrap: [
-    AppComponent
-  ]
+  providers: [ClienteService],
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

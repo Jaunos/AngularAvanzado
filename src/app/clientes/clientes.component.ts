@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {Cliente} from './cliente';
 import { ClienteService } from '../services/cliente.service';
-
+import  swal  from 'sweetalert2';
 
 @Component({
   selector: 'app-clientes',
@@ -39,4 +39,41 @@ export class ClientesComponent implements OnInit {
 
     }
 
+    //Se implementa el método delete
+    delete(cliente: Cliente): void {
+      swal({
+        title: 'Está seguro?',
+        text: `¿Seguro que desea eliminar al cliente ${cliente.nombre} ${cliente.apellido}?`,
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, eliminar!',
+        cancelButtonText: 'No, cancelar!',
+        confirmButtonClass: 'btn btn-success',
+        cancelButtonClass: 'btn btn-danger',
+        buttonsStyling: false,
+        reverseButtons: true
+      }).then((result) => {
+        //Cuando el resultado es si, se elimina
+        if (result.value) {
+          //Se llama al servicio con el método de borrado y se le pasa el id del cliente
+          this.clienteService.delete(cliente.id).subscribe(
+            //En la respuesta se envía el mensaje
+            response => {
+              //se elimina del listado de clientes el objeto eliminado.
+              //filter permite filtrar los elementos deseados y devolver un nuevo array
+              //Si el cliente es distinto al cliente que se va a eliminar, se muestra en la vista.
+              this.clientes = this.clientes.filter(cli => cli !== cliente)
+              swal(
+                'Cliente Eliminado!',
+                `Cliente ${cliente.nombre} eliminado con éxito.`,
+                'success'
+              )
+            }
+          )
+  
+        }
+      })
+    }
 }

@@ -1,1 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+/* Solución footer mal posicionado
+1. Se define una posicion relativa para el documento html
+2. Otorgar altura mínima del 100%
+3. Se añade un margen al body de la misma altura que el footer
+4. En app.component.html se añade padding-bottom de la misma altura que el footer mediante una clase personalizada wrap*/
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 40px;
+}
+
+.wrap {
+    padding-bottom: 40px;
+}
