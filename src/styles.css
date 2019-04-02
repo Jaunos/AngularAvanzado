@@ -11,9 +11,10 @@ html {
 }
 
 body {
-    margin-bottom: 40px;
+    margin-bottom: 60px;
+     min-height: 100%;
 }
 
 .wrap {
-    padding-bottom: 40px;
+    padding-bottom: 60px;
 }

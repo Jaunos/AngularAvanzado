@@ -11,8 +11,9 @@ import  swal  from 'sweetalert2';
 })
 export class FormComponent implements OnInit {
 
-  private cliente: Cliente  = new Cliente();
-  private titulo: string = "Crear Cliente";
+  public cliente: Cliente  = new Cliente();
+  public titulo: string = "Crear Cliente";
+  public errores: string[];
 
   constructor(private clienteService: ClienteService,
               private router: Router,
@@ -34,7 +35,7 @@ export class FormComponent implements OnInit {
           //anonima
           this.clienteService.getCliente(id).subscribe(
             cliente => {
-              this.cliente=cliente
+              this.cliente = cliente;
             }
           )
         }
@@ -47,26 +48,45 @@ export class FormComponent implements OnInit {
   //   console.log(this.cliente);
   // }
 
+//Método objeto cliente
   public create(): void {
     this.clienteService.create(this.cliente).subscribe(
       //Nos suscribimos para obtener la respuesta y se determina la acción de la
       //función anónima. Una vez guardado, redirige al listado de clientes
-      cliente =>  { 
-        this.router.navigate(['/clientes'])
-        swal('Nuevo cliente', `Cliente ${cliente.nombre} creado con éxito!`, 'success')
-      });
+      cliente =>  {
+        this.router.navigate(['/clientes']);
+        swal('Nuevo cliente', `El cliente ${cliente.nombre} ha sido creado con éxito!`, 'success')
+      },
+      //Se controla el error
+      err => {
+        this.errores = err.error.errors as string[];
+        //Opcional
+        console.error('Código del error desde backend ' + err.error.errors);
+        console.error(err.error.errors);
+
+      }
+      );
     console.log(this.cliente);
   }
-  
 
-  //Método para actualizar parámetros del cliente
+
+  //Método para actualizar parámetros del cliente- Modo JSON
   update(): void {
     this.clienteService.update(this.cliente)
     //Nos suscribimos para obtener la respuesta y se determina la acción de la
       //función anónima. Una vez actualizado, redirige al listado de clientes
-    .subscribe (cliente => {
-      this.router.navigate(['/clientes'])
-      swal('Cliente Actualizado', `Cliente ${cliente.nombre} actualizado con éxito!`, 'success')
-    })
+    .subscribe (res => {
+      this.router.navigate(['/clientes']);
+      swal('Cliente Actualizado', `${res.mensaje}: ${res.nombre} actualizado con éxito!`, 'success')
+    },
+      //Se controla el error
+      err => {
+        this.errores = err.error.errors as string[];
+        //Opcional
+        console.error('Código del error desde backend ' + err.error.errors);
+        console.error(err.error.errors);
+
+      }
+    );
   }
 }
