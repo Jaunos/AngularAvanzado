@@ -15,7 +15,7 @@ import { formatDate, DatePipe } from '@angular/common';
 })
 export class ClienteService {
   //Se define el endpoint http
-  private urlEndPoint: string = 'http://localhost:3621/api/clientes';
+  private urlEndPoint: string = 'http://localhost:8080/api/clientes';
 
   //Atributo para las cabeceras http
   private httpHeaders = new HttpHeaders({
@@ -24,64 +24,78 @@ export class ClienteService {
 
   //Se importa http para la comunicación con el servidor
   constructor(private http: HttpClient,
-    private router: Router) { }
+              private router: Router) { }
 
   // getClientes(): Cliente[] {
   //   return CLIENTES;
   // }
 
-  //convertir a observable para transformarlo
-  //en asíncrono
-  getClientes(): Observable<Cliente[]> {
-    // return of(CLIENTES);
+  // convertir a observable para transformarlo
+  // en asíncrono
+  // getClientes(page: number): Observable<any[]> {
+  //   // return of(CLIENTES);
 
-    //Se castea el resultado para que devuelva un objeto de tipo cliente en vez de json
-    //map tambien permite convertir el objeto json en tipo cliente
-    // return this.http.get<Cliente[]>(this.urlEndPoint)
+  //   // Se castea el resultado para que devuelva un objeto de tipo cliente en vez de json
+  //   // map tambien permite convertir el objeto json en tipo cliente
+  //   // return this.http.get<Cliente[]>(this.urlEndPoint)
 
-    //Segunda forma de casteo con map
-    return this.http.get(this.urlEndPoint)
-      //map del observable para modificar los datos de
-      //tipo json a otro tipo de valor
-      .pipe(
-        //RESPONSE DE TIPO OBJECT
-        tap(response => {
-          //Se añade la siguiente linea para transformar el objeto tap a Cliente
-          //para poder usar forEach
-          const clientes = response as Cliente[];
-          clientes.forEach(cliente => {
-            //Una vez realizada la conversión se pueden mostrar los datos de los clientes
-            //en el log
-            console.log(cliente.nombre);
-          });
-        }),
-        map(response => {
-          const clientes = response as Cliente[];
-          //map del array para modificar sus propios valores
-          return clientes.map(cliente => {
-            //Por cada cliente se cambia su nombre a mayúsculas
-            cliente.nombre = cliente.nombre.toUpperCase();
-            //Modificar formato fecha - Forma 1
-            // cliente.createAt = formatDate(cliente.createAt, 'dd-mm-yyyy', 'en-US');
-            //Modificar formato fecha - Forma 2
-            const datePipe = new DatePipe('es-ES');
-            // cliente.createAt = datePipe.transform(cliente.createAt, 'dd/mm/yyyy');
-            cliente.createAt = datePipe.transform(cliente.createAt, 'EEEE dd, MMMM yyyy');
-            return cliente;
-          });
-        }),
-         //RESPONSE DE TIPO CLIENTE MODIFICADO POR EL MAP ANTERIOR
-        tap(response => {
-          //Este tap ya no necesita la conversión, ya es de tipo Cliente
-          response.forEach(cliente => {
-            //Una vez realizada la conversión se pueden mostrar los datos de los clientes
-            //en el log
-            console.log(cliente.nombre);
-          });
-        })
-      );
+  //   // Segunda forma de casteo con map
+  //   // Se añade page a la url para usar la paginación
+  //     // map del observable para modificar los datos de
+  //     // tipo json a otro tipo de valor
+  //   return this.http.get(this.urlEndPoint + '/page/' + page)
+  //     .pipe(tap((response: any) => {
+  //         //Modificacion para utilizar la paginación mediante backen
+  //         //Una vez realizada la conversión se pueden mostrar los datos de los clientes
+  //         //en el log
+  //         (response.content as Cliente[]).forEach(cliente => console.log(cliente.nombre));
+  //       }),
+  //       map((response: any) => {
+  //         //map del array para modificar sus propios valores
+  //         (response.content as Cliente[]).map(cliente => {
+  //           //Por cada cliente se cambia su nombre a mayúsculas
+  //           cliente.nombre = cliente.nombre.toUpperCase();
+  //           //Modificar formato fecha - Forma 1
+  //           // cliente.createAt = formatDate(cliente.createAt, 'dd-mm-yyyy', 'en-US');
+  //           //Modificar formato fecha - Forma 2
+  //           const datePipe = new DatePipe('es-ES');
+  //           // cliente.createAt = datePipe.transform(cliente.createAt, 'dd/mm/yyyy');
+  //           cliente.createAt = datePipe.transform(cliente.createAt, 'EEEE dd, MMMM yyyy');
+  //           return cliente;
+  //         });
+  //         return response;
+  //       }),
+  //       //RESPONSE DE TIPO CLIENTE MODIFICADO POR EL MAP ANTERIOR
+  //       tap(response => {
+  //         //Este tap ya no necesita la conversión, ya es de tipo Cliente
+  //         //Una vez realizada la conversión se pueden mostrar los datos de los clientes
+  //         //en el log
+  //         (response.content as Cliente[]).forEach(cliente => console.log(cliente.nombre));
+  //       })
+  //     );
+  // }
+getClientes(page: number): Observable<any> {
+    return this.http.get(this.urlEndPoint + '/page/' + page).pipe(
+      tap((response: any) => {
+        console.log('ClienteService: tap 1');
+        (response.content as Cliente[]).forEach(cliente => console.log(cliente.nombre));
+      }),
+      map((response: any) => {
+        (response.content as Cliente[]).map(cliente => {
+          cliente.nombre = cliente.nombre.toUpperCase();
+          //let datePipe = new DatePipe('es');
+          //cliente.createAt = datePipe.transform(cliente.createAt, 'EEEE dd, MMMM yyyy');
+          //cliente.createAt = formatDate(cliente.createAt, 'dd-MM-yyyy', 'es');
+          return cliente;
+        });
+        return response;
+      }),
+      tap(response => {
+        console.log('ClienteService: tap 2');
+        (response.content as Cliente[]).forEach(cliente => console.log(cliente.nombre));
+      })
+    );
   }
-
 
   //metodo para crear clientes, recibe un cliente en formato JSON y devuelve un observable. Post crea datos en el
   //servidor rest.
@@ -103,7 +117,7 @@ export class ClienteService {
     return this.http.get<Cliente>(`${this.urlEndPoint}/${id}`).pipe(
       //Recibe un 404 cuando no se encuentra el objeto
       catchError(e => {
-        if (e.status == 400) {
+        if (e.status === 400) {
           return throwError(e);
         }
         //Una vez capturado el error se redirige al cliente

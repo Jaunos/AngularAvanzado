@@ -3,6 +3,7 @@ import { Cliente } from './cliente';
 import { ClienteService } from '../services/cliente.service';
 import swal from 'sweetalert2';
 import { tap } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-clientes',
@@ -12,44 +13,46 @@ import { tap } from 'rxjs/operators';
 export class ClientesComponent implements OnInit {
 
   clientes: Cliente[];
+  paginador: any;
 
-  //Inyección de dependencias
-  constructor(private clienteService: ClienteService) { }
+  // Inyección de dependencias
+  constructor(private clienteService: ClienteService,
+              private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
 
-    // this.clientes = this.clienteService.getClientes();
+    // ruta que actualiza el número de página
+    this.activatedRoute.paramMap.subscribe( params => {
+    // Se obtiene la página mediante el parámetro + get
+    // operador + transforma parámetro string a integer
+    let page: number = + params.get('page');
+    // Cuando page no exista se asigna a 0
+    if (!page) {
+      page = 0;
+    }
 
-    //Registrar el Observable. Nos debemos suscribir
-    //y detro del método usar el observador
+    // Registrar el Observable. Nos debemos suscribir
+    // y detro del método usar el observador
     // y se obtiene el valor obtenido desde el cliente service
-    this.clienteService.getClientes().pipe(
-      //RESPONSE DE TIPO OBJECT
-      tap(clientes => {
-        //Este tap ya no necesita la conversión, ya es de tipo Cliente
-        clientes.forEach(cliente => {
-          //Una vez realizada la conversión se pueden mostrar los datos de los clientes
-          //en el log
-          console.log(cliente.nombre);
-        });
-      })
-    ).subscribe(
-      //se asigna el parámetro clientes a this.clientes
-      //actualizando el listado de clientes
-      clientes => this.clientes = clientes
+    this.clienteService.getClientes(page)
+      .pipe(
+        tap(response => {
+          console.log('ClientesComponent: tap 3');
+          (response.content as Cliente[]).forEach(cliente => console.log(cliente.nombre));
+        })
+      ).subscribe(response => {
+        this.clientes = response.content as Cliente[];
+        // Añadir atributos de paginación
+        // Se inyecta en la clase hijo paginator.component
+        this.paginador = response;
+      });
 
-      //La función anterior es igual a la siguiente
-      //se usa la llave cuando hay más de una línea de código
-      //se usa paréntesis cuando hay más de un argumento
+    });
 
-      // (clientes) =>  {
-      //   this.clientes = clientes
-      // }
-    );
 
   }
 
-  //Se implementa el método delete
+  // Se implementa el método delete
   delete(cliente: Cliente): void {
     swal({
       title: 'Está seguro?',
@@ -65,22 +68,22 @@ export class ClientesComponent implements OnInit {
       buttonsStyling: false,
       reverseButtons: true
     }).then((result) => {
-      //Cuando el resultado es si, se elimina
+      // Cuando el resultado es si, se elimina
       if (result.value) {
-        //Se llama al servicio con el método de borrado y se le pasa el id del cliente
+        // Se llama al servicio con el método de borrado y se le pasa el id del cliente
         this.clienteService.delete(cliente.id).subscribe(
-          //En la respuesta se envía el mensaje
+          // En la respuesta se envía el mensaje
           response => {
-            //se elimina del listado de clientes el objeto eliminado.
-            //filter permite filtrar los elementos deseados y devolver un nuevo array
-            //Si el cliente es distinto al cliente que se va a eliminar, se muestra en la vista.
+            // se elimina del listado de clientes el objeto eliminado.
+            // filter permite filtrar los elementos deseados y devolver un nuevo array
+            // Si el cliente es distinto al cliente que se va a eliminar, se muestra en la vista.
             this.clientes = this.clientes.filter(cli => cli !== cliente);
             swal(
               'Cliente Eliminado!',
               `Cliente ${cliente.nombre} eliminado con éxito.`,
               'success'
-            )}
-            )
+            );
+          });
       }
     });
   }
