@@ -24,7 +24,7 @@ export class ClienteService {
 
   //Se importa http para la comunicación con el servidor
   constructor(private http: HttpClient,
-              private router: Router) { }
+    private router: Router) { }
 
   // getClientes(): Cliente[] {
   //   return CLIENTES;
@@ -74,7 +74,7 @@ export class ClienteService {
   //       })
   //     );
   // }
-getClientes(page: number): Observable<any> {
+  getClientes(page: number): Observable<any> {
     return this.http.get(this.urlEndPoint + '/page/' + page).pipe(
       tap((response: any) => {
         console.log('ClienteService: tap 1');
@@ -148,13 +148,15 @@ getClientes(page: number): Observable<any> {
 
   //metodo para eliminar clientes. delete elimina datos en el servidor rest.
   delete(id: number): Observable<Cliente> {
-    return this.http.delete<Cliente>(`${this.urlEndPoint}/${id}`, { headers: this.httpHeaders })
-      .pipe(catchError(e => {
-        console.error(e.error.mensaje);
-        swal('Error al eliminar el cliente ', e.error.mensaje, 'error');
+    return this.http.delete<Cliente>(`${this.urlEndPoint}/${id}`, { headers: this.httpHeaders }).pipe(
+      catchError(e => {
         //Se devuelve el error en un tipo Observable
+        console.error(e.error.mensaje);
+        swal(e.error.mensaje, e.error.error, 'error');
         return throwError(e);
       })
-      );
+    );
   }
+
+
 }
