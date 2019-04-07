@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { CLIENTES } from '../clientes/clientes.json';
+// import { CLIENTES } from '../clientes/clientes.json';
 import { Cliente } from '../clientes/cliente';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -112,26 +112,26 @@ export class ClienteService {
   }
 
 
-  //método para obtener el cliente que se desea modificar
+  // método para obtener el cliente que se desea modificar
   getCliente(id): Observable<Cliente> {
     return this.http.get<Cliente>(`${this.urlEndPoint}/${id}`).pipe(
-      //Recibe un 404 cuando no se encuentra el objeto
+      // Recibe un 404 cuando no se encuentra el objeto
       catchError(e => {
         if (e.status === 400) {
           return throwError(e);
         }
-        //Una vez capturado el error se redirige al cliente
+        // Una vez capturado el error se redirige al cliente
         this.router.navigate(['/clientes']);
         console.log(e.error.mensaje);
         swal('Error al editar ', e.error.mensaje, 'error');
-        //Se devuelve el error en un tipo Observable
+        // Se devuelve el error en un tipo Observable
         return throwError(e);
       })
     )
   }
 
 
-  //metodo para actualizar clientes. Put actualiza datos en el servidor rest.
+  // metodo para actualizar clientes. Put actualiza datos en el servidor rest.
   update(cliente: Cliente): Observable<any> {
     return this.http.put<any>(`${this.urlEndPoint}/${cliente.id}`, cliente, { headers: this.httpHeaders })
       .pipe(catchError(e => {
@@ -140,17 +140,17 @@ export class ClienteService {
         }
         console.error(e.error.mensaje);
         swal('Error al editar el cliente ', e.error.mensaje, 'error');
-        //Se devuelve el error en un tipo Observable
+        // Se devuelve el error en un tipo Observable
         return throwError(e);
       })
       );
   }
 
-  //metodo para eliminar clientes. delete elimina datos en el servidor rest.
+  // metodo para eliminar clientes. delete elimina datos en el servidor rest.
   delete(id: number): Observable<Cliente> {
     return this.http.delete<Cliente>(`${this.urlEndPoint}/${id}`, { headers: this.httpHeaders }).pipe(
       catchError(e => {
-        //Se devuelve el error en un tipo Observable
+        // Se devuelve el error en un tipo Observable
         console.error(e.error.mensaje);
         swal(e.error.mensaje, e.error.error, 'error');
         return throwError(e);
@@ -158,5 +158,26 @@ export class ClienteService {
     );
   }
 
+  // metodo para subir archivos, para poder asignar la imagen a un cliente se debe devolver
+  // un observable de tipo cliente
+  subirFoto(archivo: File, id): Observable<Cliente> {
+    // Se crea una variable de tipo formData con soporte multipart para subir archivos al servidor
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+    formData.append('id', id);
+    // Se devuelve una peticion tipo post con la url tipo upload y como segundo parámetro
+    // el form data. Se debe convertir el observable para que sea de tipo cliente
+    return this.http.post(`${this.urlEndPoint}/uploads`, formData).pipe(
+      // Se emite un response con el json que se debe convertir en un observable de tipo cliente
+      // para poder acceder al objeto cliente que se recibe desde el servidor
+      map((response: any) => response.cliente as Cliente),
+      catchError(e => {
+        // Se devuelve el error en un tipo Observable
+        console.error(e.error.mensaje);
+        swal(e.error.mensaje, e.error.error, 'error');
+        return throwError(e);
+      })
+    );
+  }
 
 }

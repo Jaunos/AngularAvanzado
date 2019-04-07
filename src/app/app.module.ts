@@ -16,6 +16,7 @@ import { PaginatorComponent } from "./paginator/paginator.component";
 import { ClienteService } from "./services/cliente.service";
 import { MatDatepickerModule } from "@angular/material";
 import { MatMomentDateModule } from "@angular/material-moment-adapter";
+import { DetalleComponent } from './clientes/detalle/detalle.component';
 
 registerLocaleData(localeEs, "es-ES");
 
@@ -26,7 +27,8 @@ const routes: Routes = [
   // Ruta para paginar
   { path: "clientes/page/:page", component: ClientesComponent },
   { path: "clientes/form", component: FormComponent },
-  { path: "clientes/form/:id", component: FormComponent }
+  { path: "clientes/form/:id", component: FormComponent },
+  { path: "clientes/ver/:id", component: DetalleComponent }
 ];
 
 @NgModule({
@@ -37,7 +39,8 @@ const routes: Routes = [
     DirectivaComponent,
     ClientesComponent,
     FormComponent,
-    PaginatorComponent
+    PaginatorComponent,
+    DetalleComponent
   ],
   imports: [
     BrowserModule,
