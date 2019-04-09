@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 // import { CLIENTES } from '../clientes/clientes.json';
 import { Cliente } from '../clientes/cliente';
 import { Observable, of, throwError } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpRequest, HttpEvent } from '@angular/common/http';
 import { map, catchError, tap } from 'rxjs/operators';
 import swal from 'sweetalert2';
 import { formatDate, DatePipe } from '@angular/common';
@@ -160,24 +160,45 @@ export class ClienteService {
 
   // metodo para subir archivos, para poder asignar la imagen a un cliente se debe devolver
   // un observable de tipo cliente
-  subirFoto(archivo: File, id): Observable<Cliente> {
+  // subirFoto(archivo: File, id): Observable<Cliente> {
+  //   // Se crea una variable de tipo formData con soporte multipart para subir archivos al servidor
+  //   const formData = new FormData();
+  //   formData.append('archivo', archivo);
+  //   formData.append('id', id);
+
+  //   // Se crea un http request para una barra de navegación
+
+  //   // Se devuelve una peticion tipo post con la url tipo upload y como segundo parámetro
+  //   // el form data. Se debe convertir el observable para que sea de tipo cliente
+  //   return this.http.post(`${this.urlEndPoint}/uploads`, formData).pipe(
+  //     // Se emite un response con el json que se debe convertir en un observable de tipo cliente
+  //     // para poder acceder al objeto cliente que se recibe desde el servidor
+  //     map((response: any) => response.cliente as Cliente),
+  //     catchError(e => {
+  //       // Se devuelve el error en un tipo Observable
+  //       console.error(e.error.mensaje);
+  //       swal(e.error.mensaje, e.error.error, 'error');
+  //       return throwError(e);
+  //     })
+  //   );
+  // }
+
+    // metodo para subir archivos, para poder asignar la imagen a un cliente se debe devolver
+  // un observable de tipo cliente
+  subirFoto(archivo: File, id): Observable<HttpEvent<{}>> {
     // Se crea una variable de tipo formData con soporte multipart para subir archivos al servidor
     const formData = new FormData();
     formData.append('archivo', archivo);
     formData.append('id', id);
-    // Se devuelve una peticion tipo post con la url tipo upload y como segundo parámetro
-    // el form data. Se debe convertir el observable para que sea de tipo cliente
-    return this.http.post(`${this.urlEndPoint}/uploads`, formData).pipe(
-      // Se emite un response con el json que se debe convertir en un observable de tipo cliente
-      // para poder acceder al objeto cliente que se recibe desde el servidor
-      map((response: any) => response.cliente as Cliente),
-      catchError(e => {
-        // Se devuelve el error en un tipo Observable
-        console.error(e.error.mensaje);
-        swal(e.error.mensaje, e.error.error, 'error');
-        return throwError(e);
-      })
-    );
+
+    // Se crea un http request para una barra de navegación
+    const req = new HttpRequest('POST', `${this.urlEndPoint}/uploads`, formData, {
+      reportProgress: true
+    });
+
+
+    // Se devuelve un httpevent
+    return this.http.request(req);
   }
 
 }
