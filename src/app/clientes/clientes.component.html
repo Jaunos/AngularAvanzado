@@ -1,3 +1,4 @@
+<detalle-cliente *ngIf="clienteSeleccionado" [cliente]="clienteSeleccionado"></detalle-cliente>
 <div class="card border-primary mb-3">
   <div class="card-header">Clientes</div>
   <div class="card-body text-primary">
@@ -26,21 +27,30 @@
       </thead>
       <tbody>
         <tr *ngFor="let cliente of clientes">
-          <td><button [routerLink]="['/clientes/ver', cliente.id]" class="btn btn-success btn-sm" type="button">{{ cliente.id }}</button></td>
+          <!-- <td><button [routerLink]="['/clientes/ver', cliente.id]" class="btn btn-success btn-sm" type="button">{{ cliente.id }}</button></td> -->
+          <td>
+            <img (click)="abrirModal(cliente)" *ngIf="cliente?.foto"
+              src="http://localhost:8080/api/uploads/img/{{cliente.foto}}" alt="{{cliente.foto}}"
+              class="img-thumbnail rounded" style="width: 64px; cursor: pointer;">
+            <img (click)="abrirModal(cliente)" *ngIf="!cliente?.foto" src="http://localhost:8080/images/no_usuario.png"
+              alt="Sin foto" class="img-thumbnail rounded" style="width: 64px; cursor: pointer;">
+          </td>
           <td>{{ cliente.nombre }}</td>
           <td>{{ cliente.apellido | uppercase }}</td>
           <td>{{ cliente.email }}</td>
           <td>{{ cliente.createAt }}</td>
           <!-- <td>{{ cliente.createAt | date: "EEEE dd, MMMM yyyy"}}</td> -->
           <td>
-            <button type="button" name="editar" [routerLink]="['/clientes/form', cliente.id]" class="btn btn-primary btn-sm">editar</button>
+            <button type="button" name="editar" [routerLink]="['/clientes/form', cliente.id]"
+              class="btn btn-primary btn-sm">editar</button>
           </td>
           <td>
-            <button type="button" name="eliminar" (click)='delete(cliente)' class="btn btn-danger btn-sm">eliminar</button>
+            <button type="button" name="eliminar" (click)='delete(cliente)'
+              class="btn btn-danger btn-sm">eliminar</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <paginator-nav *ngIf="paginador"  [paginador] = "paginador"></paginator-nav>
+    <paginator-nav *ngIf="paginador" [paginador]="paginador"></paginator-nav>
   </div>
 </div>

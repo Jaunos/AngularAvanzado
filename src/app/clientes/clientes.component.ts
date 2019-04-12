@@ -1,3 +1,4 @@
+import { ModalService } from './../services/modal.service';
 import { Component, OnInit } from '@angular/core';
 import { Cliente } from './cliente';
 import { ClienteService } from '../services/cliente.service';
@@ -14,39 +15,58 @@ export class ClientesComponent implements OnInit {
 
   clientes: Cliente[];
   paginador: any;
+  clienteSeleccionado: Cliente;
 
   // Inyección de dependencias
   constructor(private clienteService: ClienteService,
-              private activatedRoute: ActivatedRoute) { }
+              private activatedRoute: ActivatedRoute,
+              private modalService: ModalService) { }
 
   ngOnInit() {
 
     // ruta que actualiza el número de página
-    this.activatedRoute.paramMap.subscribe( params => {
-    // Se obtiene la página mediante el parámetro + get
-    // operador + transforma parámetro string a integer
-    let page: number = + params.get('page');
-    // Cuando page no exista se asigna a 0
-    if (!page) {
-      page = 0;
-    }
+    this.activatedRoute.paramMap.subscribe(params => {
+      // Se obtiene la página mediante el parámetro + get
+      // operador + transforma parámetro string a integer
+      let page: number = + params.get('page');
+      // Cuando page no exista se asigna a 0
+      if (!page) {
+        page = 0;
+      }
 
-    // Registrar el Observable. Nos debemos suscribir
-    // y detro del método usar el observador
-    // y se obtiene el valor obtenido desde el cliente service
-    this.clienteService.getClientes(page)
-      .pipe(
-        tap(response => {
-          console.log('ClientesComponent: tap 3');
-          (response.content as Cliente[]).forEach(cliente => console.log(cliente.nombre));
-        })
-      ).subscribe(response => {
-        this.clientes = response.content as Cliente[];
-        // Añadir atributos de paginación
-        // Se inyecta en la clase hijo paginator.component
-        this.paginador = response;
+      // Registrar el Observable. Nos debemos suscribir
+      // y detro del método usar el observador
+      // y se obtiene el valor obtenido desde el cliente service
+      this.clienteService.getClientes(page)
+        .pipe(
+          tap(response => {
+            console.log('ClientesComponent: tap 3');
+            (response.content as Cliente[]).forEach(cliente => console.log(cliente.nombre));
+          })
+        ).subscribe(response => {
+          this.clientes = response.content as Cliente[];
+          // Añadir atributos de paginación
+          // Se inyecta en la clase hijo paginator.component
+          this.paginador = response;
+        });
+
+    });
+
+    // Se llama al modalservice para terminar la implementacion del Emmiter
+    // Se llama al metodod notificarUpload y nos suscribimos para obtener el cliente con la
+    // imagen actualizada
+    this.modalService.notificarUpload.subscribe(cliente => {
+      // Se recorre el listado de clientes. Se comprueba si el cliente de la tabla es igual al cliente
+      // que se está emitiendo. Si son iguales se actualiza.
+       // map permite modificar un cliente y va a devolver el cliente modificado
+      this.clientes = this.clientes.map(clienteOriginal => {
+        // Se comprueba si el id del cliente es igual al id del clienteOriginal
+        // Se actualiza su imagen y se devuelve el cliente actualizado
+        if (cliente.id === clienteOriginal.id) {
+          clienteOriginal.foto = cliente.foto;
+        }
+        return clienteOriginal;
       });
-
     });
 
 
@@ -86,5 +106,11 @@ export class ClientesComponent implements OnInit {
           });
       }
     });
+  }
+
+  // Se crea un método para mostrar el cliente seleccionado en un modal
+  abrirModal(cliente: Cliente) {
+    this.clienteSeleccionado = cliente;
+    this.modalService.abrirModal();
   }
 }
