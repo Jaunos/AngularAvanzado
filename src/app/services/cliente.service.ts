@@ -1,3 +1,4 @@
+import { Region } from './../clientes/region';
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 // import { CLIENTES } from '../clientes/clientes.json';
@@ -24,7 +25,14 @@ export class ClienteService {
 
   //Se importa http para la comunicación con el servidor
   constructor(private http: HttpClient,
-    private router: Router) { }
+              private router: Router) { }
+
+  // método para obtener las regiones. MEdiante un Observable de tipo Region
+  // Se llama desde formcomponent.ts
+  getRegiones(): Observable<Region[]> {
+    return this.http.get<Region[]>(this.urlEndPoint + '/regiones');
+
+  }
 
   // getClientes(): Cliente[] {
   //   return CLIENTES;
