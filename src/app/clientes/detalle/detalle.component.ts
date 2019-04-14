@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import swal from 'sweetalert2';
 import { HttpEventType } from '@angular/common/http';
 import { ModalService } from 'src/app/services/modal.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   // tslint:disable-next-line: component-selector
@@ -24,7 +25,8 @@ export class DetalleComponent implements OnInit {
 
   constructor(private clienteService: ClienteService,
               // private activatedRote: ActivatedRoute,
-              private modalService: ModalService) { }
+              private modalService: ModalService,
+              private authService: AuthService) { }
 
   ngOnInit() {
     // // Nos suscribimos cuando cambie el parámetro del id
