@@ -14,11 +14,12 @@
     <table class="table table-bordered table-striped" *ngIf="clientes?.length > 0">
       <thead>
         <tr>
-          <th *ngIf="authService.hasRole('ROLE_USER')">#</th>
-          <th>nombre</th>
-          <th>apellido</th>
-          <th>email</th>
-          <th>fecha</th>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Email</th>
+          <th>Fecha</th>
+           <th>Crear Factura</th>
           <th *ngIf="authService.hasRole('ROLE_ADMIN')">editar</th>
           <th *ngIf="authService.hasRole('ROLE_ADMIN')">eliminar</th>
         </tr>
@@ -26,7 +27,7 @@
       <tbody>
         <tr *ngFor="let cliente of clientes">
           <!-- <td><button [routerLink]="['/clientes/ver', cliente.id]" class="btn btn-success btn-sm" type="button">{{ cliente.id }}</button></td> -->
-          <td *ngIf="authService.hasRole('ROLE_USER')" >
+          <td >
             <img (click)="abrirModal(cliente)" *ngIf="cliente?.foto"
               src="http://localhost:8080/api/uploads/img/{{cliente.foto}}" alt="{{cliente.foto}}"
               class="img-thumbnail rounded" style="width: 64px; cursor: pointer;">
@@ -38,13 +39,17 @@
           <td>{{ cliente.email }}</td>
           <td>{{ cliente.createAt }}</td>
           <!-- <td>{{ cliente.createAt | date: "EEEE dd, MMMM yyyy"}}</td> -->
+          <td>
+            <button type="button" name="editar" [routerLink]="['/facturas/form/', cliente.id]"
+              class="btn btn-primary btn-sm">Crear Factura</button>
+          </td>
           <td *ngIf="authService.hasRole('ROLE_ADMIN')">
             <button type="button" name="editar" [routerLink]="['/clientes/form', cliente.id]"
-              class="btn btn-primary btn-sm">editar</button>
+              class="btn btn-primary btn-sm">Editar</button>
           </td>
           <td *ngIf="authService.hasRole('ROLE_ADMIN')">
             <button type="button" name="eliminar" (click)='delete(cliente)'
-              class="btn btn-danger btn-sm">eliminar</button>
+              class="btn btn-danger btn-sm">Eliminar</button>
           </td>
         </tr>
       </tbody>

@@ -6,6 +6,9 @@ import swal from 'sweetalert2';
 import { HttpEventType } from '@angular/common/http';
 import { ModalService } from 'src/app/services/modal.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { Factura } from 'src/app/facturas/models/factura';
+import { FacturaService } from 'src/app/services/factura.service';
+
 
 @Component({
   // tslint:disable-next-line: component-selector
@@ -26,7 +29,8 @@ export class DetalleComponent implements OnInit {
   constructor(private clienteService: ClienteService,
               // private activatedRote: ActivatedRoute,
               private modalService: ModalService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private facturaService: FacturaService) { }
 
   ngOnInit() {
     // // Nos suscribimos cuando cambie el parámetro del id
@@ -115,6 +119,43 @@ export class DetalleComponent implements OnInit {
     // Cuando se cierre el modal establecemos a null la fotoSeleccionada y el progreso
     this.fotoSeleccionada = null;
     this.progreso = 0;
+  }
+
+  // Método para eliminar factura
+  delete(factura: Factura): void {
+     swal({
+      title: 'Está seguro?',
+      text: `¿Seguro que desea eliminar la factura ${factura.descripcion}?`,
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, eliminar!',
+      cancelButtonText: 'No, cancelar!',
+      confirmButtonClass: 'btn btn-success',
+      cancelButtonClass: 'btn btn-danger',
+      buttonsStyling: false,
+      reverseButtons: true
+    }).then((result) => {
+      // Cuando el resultado es si, se elimina
+      if (result.value) {
+        // Se llama al servicio con el método de borrado y se le pasa el id del cliente
+        this.facturaService.delete(factura.id).subscribe(
+          // En la respuesta se envía el mensaje
+          response => {
+            // se elimina del listado de clientes el objeto eliminado.
+            // filter permite filtrar los elementos deseados y devolver un nuevo array
+            // Si el cliente es distinto al cliente que se va a eliminar, se muestra en la vista.
+            this.cliente.facturas = this.cliente.facturas.filter(fact => fact !== factura);
+            swal(
+              'Factura Eliminada!',
+              `Factura ${factura.descripcion} eliminada con éxito.`,
+              'success'
+            );
+          });
+      }
+    });
+
   }
 
 }
