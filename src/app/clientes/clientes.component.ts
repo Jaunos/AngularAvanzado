@@ -21,8 +21,9 @@ export class ClientesComponent implements OnInit {
   // Inyección de dependencias
   constructor(private clienteService: ClienteService,
               private activatedRoute: ActivatedRoute,
-              private modalService: ModalService,
-              private authService: AuthService) { }
+              // En producción deben ser public
+              public modalService: ModalService,
+              public authService: AuthService) { }
 
   ngOnInit() {
 

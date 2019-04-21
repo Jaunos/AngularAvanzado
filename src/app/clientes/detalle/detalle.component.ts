@@ -28,9 +28,10 @@ export class DetalleComponent implements OnInit {
 
   constructor(private clienteService: ClienteService,
               // private activatedRote: ActivatedRoute,
-              private modalService: ModalService,
-              private authService: AuthService,
-              private facturaService: FacturaService) { }
+              private facturaService: FacturaService,
+              // En producción deben ser public
+              public modalService: ModalService,
+              public authService: AuthService) { }
 
   ngOnInit() {
     // // Nos suscribimos cuando cambie el parámetro del id

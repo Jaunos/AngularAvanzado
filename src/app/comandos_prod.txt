@@ -1,0 +1,14 @@
+# COMANDOS PARA TRANSFORMAR EL PROYECTO EN PRODUCCION
+# CON TOMCAT
+
+# Limpia y vuelve a construir el proyecto
+
+# Linux
+sudo chmod +x mvnw
+./mvnw clean package
+
+# Windows
+.\mvnw.cmd clean package
+
+# Publicar
+java -jar -PATH jar generado  con  el comando anterior

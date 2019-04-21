@@ -1,47 +1,53 @@
-import { ItemFactura } from './../models/itemFactura';
-import { Component, OnInit } from '@angular/core';
-import { Factura } from '../models/factura';
-import { ClienteService } from 'src/app/services/cliente.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { map, flatMap } from 'rxjs/operators';
-import { FacturaService } from 'src/app/services/factura.service';
-import { Producto } from '../models/producto';
-import { MatAutocompleteSelectedEvent } from '@angular/material';
-import swal from 'sweetalert2';
+import { ItemFactura } from "./../models/itemFactura";
+import { Component, OnInit } from "@angular/core";
+import { Factura } from "../models/factura";
+import { ClienteService } from "src/app/services/cliente.service";
+import { ActivatedRoute, Router } from "@angular/router";
+import { FormControl } from "@angular/forms";
+import { Observable } from "rxjs";
+import { map, flatMap } from "rxjs/operators";
+import { FacturaService } from "src/app/services/factura.service";
+import { Producto } from "../models/producto";
+import { MatAutocompleteSelectedEvent } from "@angular/material";
+import swal from "sweetalert2";
 
 @Component({
-  selector: 'app-facturas',
-  templateUrl: './facturas.component.html',
-  styleUrls: ['./facturas.component.css']
+  selector: "app-facturas",
+  templateUrl: "./facturas.component.html",
+  styleUrls: ["./facturas.component.css"]
 })
 export class FacturasComponent implements OnInit {
-
-  titulo: string = 'Nueva Factura';
+  titulo: string = "Nueva Factura";
   factura: Factura = new Factura();
 
   // Atributos para filtrado automcoplete
   autocompleteControl = new FormControl();
-  productos: string[] = ['Mesa', 'Tablet', 'Sony', 'Samsung', 'Tv LG', 'Bicicleta'];
+  productos: string[] = [
+    "Mesa",
+    "Tablet",
+    "Sony",
+    "Samsung",
+    "Tv LG",
+    "Bicicleta"
+  ];
   productosFiltrados: Observable<Producto[]>;
 
-
-  constructor(private clienteService: ClienteService,
-              private activatedRoute: ActivatedRoute,
-              private facturaService: FacturaService,
-              private router: Router) { }
+  constructor(
+    private clienteService: ClienteService,
+    private activatedRoute: ActivatedRoute,
+    private facturaService: FacturaService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     // Se asigna el cliente a la Factura
     this.activatedRoute.paramMap.subscribe(params => {
-      let clienteId = +params.get('clienteId');
+      let clienteId = +params.get("clienteId");
       // Se obtiene el cliente desde backend
       this.clienteService.getCliente(clienteId).subscribe(cliente => {
         // Se asigna el cliente a la factura
         this.factura.cliente = cliente;
       });
-
     });
 
     // // Método para filtrado autocomplete. Listener para cuando cambie el valor del producto
@@ -56,18 +62,14 @@ export class FacturasComponent implements OnInit {
 
     // Método para filtrado autocomplete. Listener para cuando cambie el valor del producto
     // Se elimina startsWith para que solo muestre el producto filtrado
-    this.productosFiltrados = this.autocompleteControl.valueChanges
-      .pipe(
-        // Si el valor es distinto de string se devuelve el nombre del objeto de tipo producto
-        map(value => typeof value === 'string' ? value : value.nombre),
-        // Se convierte el observable de filter al que trae valueChanges con flatMap
-        // Se controla que el valor exista. Si no existe se devuelve un array vacío
-        flatMap(producto => producto ? this._filter(producto) : [])
-      );
+    this.productosFiltrados = this.autocompleteControl.valueChanges.pipe(
+      // Si el valor es distinto de string se devuelve el nombre del objeto de tipo producto
+      map(value => (typeof value === "string" ? value : value.nombre)),
+      // Se convierte el observable de filter al que trae valueChanges con flatMap
+      // Se controla que el valor exista. Si no existe se devuelve un array vacío
+      flatMap(producto => (producto ? this._filter(producto) : []))
+    );
   }
-
-
-
 
   private _filter(producto: string): Observable<Producto[]> {
     // Se transforma el texto a minúsculas
@@ -103,7 +105,7 @@ export class FacturasComponent implements OnInit {
 
     // Se vacía el autocompletado para seguir añadiendo elementos a la factura y se
     // elimina el focus del evento
-    this.autocompleteControl.setValue('');
+    this.autocompleteControl.setValue("");
     event.option.focus();
     // Se quita el producto seleccionado para poder seleccionar otro
     event.option.deselect();
@@ -128,7 +130,6 @@ export class FacturasComponent implements OnInit {
       // Se devuelve el elemento actualizado
       return item;
     });
-
   }
 
   // Método que comprueba si existe el producto en el array
@@ -157,18 +158,33 @@ export class FacturasComponent implements OnInit {
 
   // SE filtran todos los productos cuando el ID pasado por argumento sea distinto a la id del producto
   eliminarItemFactura(id: number): void {
-    this.factura.items = this.factura.items.filter((item: ItemFactura) => id !== item.producto.id);
+    this.factura.items = this.factura.items.filter(
+      (item: ItemFactura) => id !== item.producto.id
+    );
   }
 
   // Método para eliminar facturas
-  create(): void {
+  create(facturaForm): void {
     console.log(this.factura);
-    // Se llama al metodo create del servicio y nos suscribimos para manejar la respuesta
-    this.facturaService.create(this.factura).subscribe(factura => {
-        swal(this.titulo, `Factura ${factura.descripcion} creada con éxito!`, 'success');
-        this.router.navigate(['/clientes']);
 
-    });
+    // Si falla se envia un mensaje de error
+    if (this.factura.items.length == 0) {
+      this.autocompleteControl.setErrors({ 'invalid': true });
+    }
+
+    // Se crea la factura cuando el formulario sea válido y la lista de productos mayor que 0
+    if (facturaForm.form.valid && this.factura.items.length > 0) {
+      // Se llama al metodo create del servicio y nos suscribimos para manejar la respuesta
+      this.facturaService.create(this.factura).subscribe(factura => {
+        swal(
+          this.titulo,
+          `Factura ${factura.descripcion} creada con éxito!`,
+          'success'
+        );
+        // this.router.navigate(['/clientes']);
+        // Una vez creada la factura, se redirige al detalle de la factura
+        this.router.navigate(['/facturas', factura.id]);
+      });
+    }
   }
-
 }

@@ -12,7 +12,9 @@ export class HeaderComponent implements OnInit {
 
   title = 'App Angular';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  // En producción debe ser public
+  constructor(public authService: AuthService,
+              private router: Router) { }
 
   ngOnInit() {
   }

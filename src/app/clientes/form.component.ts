@@ -78,9 +78,13 @@ export class FormComponent implements OnInit {
   // Método para actualizar parámetros del cliente- Modo JSON
   update(): void {
     console.log(this.cliente);
-    this.clienteService.update(this.cliente)
+    // Cuando se edita un cliente se establecen sus facturas a null
+    // para solucionar problema de recursividad
+    this.cliente.facturas = null;
+
     // Nos suscribimos para obtener la respuesta y se determina la acción de la
-      // función anónima. Una vez actualizado, redirige al listado de clientes
+    // función anónima. Una vez actualizado, redirige al listado de clientes
+    this.clienteService.update(this.cliente)
     .subscribe (res => {
       this.router.navigate(['/clientes']);
       swal('Cliente Actualizado', `${res.mensaje}: ${res.nombre} actualizado con éxito!`, 'success')

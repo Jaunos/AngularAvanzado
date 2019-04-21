@@ -5,7 +5,7 @@
       <a [routerLink]="['/clientes']" class="btn btn-light btn-xs">&laquo; volver</a>
     </h4>
 
-    <form action="">
+    <form #facturaForm="ngForm">
       <div class="form-group row" *ngIf="factura.cliente">
         <label for="cliente" class="col-sm-2 col-form-label">Cliente</label>
         <div class="col-sm-6">
@@ -17,7 +17,11 @@
       <div class="form-group row">
         <label for="descripcion" class="col-sm-2 col-form-label">Descripción</label>
         <div class="col-sm-6">
-          <input type="text" name="descripcion" [(ngModel)]="factura.descripcion" class="form-control">
+          <input type="text" name="descripcion" [(ngModel)]="factura.descripcion" class="form-control" required #descripcion="ngModel">
+          <div class="alert alert-danger" *ngIf="descripcion.invalid && descripcion.touched || descripcion.invalid && facturaForm.submitted">
+            La descripción no puede estar en blanco
+          </div>
+
         </div>
       </div>
 
@@ -39,6 +43,9 @@
               </mat-option>
             </mat-autocomplete>
           </mat-form-field>
+          <div class="alert alert-danger" *ngIf="autocompleteControl.invalid && facturaForm.submitted">
+            Por favor, seleccione algún producto.
+          </div>
         </div>
       </div>
       <div class="alert alert-info my-4" *ngIf="factura.items.length==0">
@@ -72,7 +79,7 @@
       </h5>
       <div class="form-group row">
         <div class="col-sm-6">
-          <input type="submit"  (click)="create()" value="Crear Factura" class="btn btn-secondary">
+          <input type="submit"  (click)="create(facturaForm)" value="Crear Factura" class="btn btn-secondary" [disabled]="">
         </div>
       </div>
 
